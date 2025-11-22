@@ -3,7 +3,7 @@ import { Menu, X, Home, History, Info, Upload, Mail, LogIn, LogOut, User } from 
 import './Navbar.css';
 import AnchorLink from "react-anchor-link-smooth-scroll";
 
-const Navbar = ({ user, setUser }) => { // 👈 Accept user props
+const Navbar = ({ user, setUser, onOpenProfile }) => { 
   const [isOpen, setIsOpen] = useState(false);
   const [menu, setMenu] = useState(""); 
 
@@ -15,7 +15,7 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
         method: 'POST',
         credentials: 'include'
       });
-      setUser(null); // Update App state to logged out
+      setUser(null);
       alert("Logged out successfully");
     } catch (error) {
       console.error("Logout failed", error);
@@ -38,7 +38,6 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
           <h1 className="brand-title">Upscale</h1>
         </div>
 
-        {/* Desktop Links */}
         <div className="navbar-links">
           {navItems.map(item => {
             const Icon = item.icon;
@@ -50,23 +49,59 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
             );
           })}
 
-          {/* Conditional Rendering: Login or Logout */}
+          {/* Manual Profile Link */}
+          {user && (
+            <button 
+                className="nav-link" 
+                onClick={onOpenProfile}
+                style={{ 
+                    background: 'none', border: 'none', padding: 0, 
+                    fontFamily: 'inherit', fontSize: 'inherit', color: 'inherit',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px'
+                }}
+            >
+                <User size={18} />
+                <span>Profile</span>
+            </button>
+          )}
+
+          {/* Login / User Section */}
           <div className="nav-link login-link">
              {user ? (
-               // LOGGED IN VIEW
                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                 <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4CAF50', fontWeight: 'bold' }}>
-                    <User size={18} /> {user.username}
+                 {/* 👇 FIXED: Added onClick here so clicking the icon/name works */}
+                 <span 
+                    onClick={onOpenProfile}
+                    style={{ 
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        color: '#4CAF50', fontWeight: 'bold', 
+                        borderLeft: '1px solid rgba(255,255,255,0.2)', paddingLeft: '15px',
+                        cursor: 'pointer', transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    title="Edit Profile"
+                 >
+                    {/* Avatar Display */}
+                    {user.avatar ? (
+                        <img src={`http://127.0.0.1:5000${user.avatar}`} alt="Av" style={{width: 24, height: 24, borderRadius: '50%', objectFit: 'cover'}} />
+                    ) : (
+                        <div style={{width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                            <User size={14} />
+                        </div> 
+                    )}
+                    {user.username}
                  </span>
+                 
                  <button 
                     onClick={handleLogout}
                     style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    title="Logout"
                  >
-                    <LogOut size={18} /> Logout
+                    <LogOut size={18} />
                  </button>
                </div>
              ) : (
-               // GUEST VIEW
                <AnchorLink
                   className="anchor-link"
                   href="#log"
@@ -84,7 +119,6 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
           </div>
         </div>
 
-        {/* Mobile Menu Toggle */}
         <button
           className="menu-toggle"
           onClick={() => setIsOpen(!isOpen)}
@@ -95,7 +129,6 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="mobile-menu">
           {navItems.map(item => {
@@ -113,16 +146,25 @@ const Navbar = ({ user, setUser }) => { // 👈 Accept user props
             );
           })}
           
-          {/* Mobile Auth */}
           <div className="mobile-link login-mobile">
              {user ? (
-               <button 
-                  onClick={() => { handleLogout(); handleClose(); }}
-                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: 0, font: 'inherit' }}
-               >
-                  <LogOut size={20} />
-                  <span>Logout ({user.username})</span>
-               </button>
+               <div style={{display: 'flex', flexDirection: 'column', gap: '10px', width: '100%'}}>
+                   {/* Mobile Profile Button */}
+                   <button 
+                      onClick={() => { onOpenProfile(); handleClose(); }}
+                      style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: 0, font: 'inherit' }}
+                   >
+                      <User size={20} />
+                      <span>My Profile ({user.username})</span>
+                   </button>
+                   <button 
+                      onClick={() => { handleLogout(); handleClose(); }}
+                      style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: 0, font: 'inherit' }}
+                   >
+                      <LogOut size={20} />
+                      <span>Logout</span>
+                   </button>
+               </div>
              ) : (
                <AnchorLink
                   className="anchor-link"

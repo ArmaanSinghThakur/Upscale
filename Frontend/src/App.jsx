@@ -6,16 +6,17 @@ import Upload from "./Pages/Upload";
 import History from "./Pages/History";
 import Contact from "./Pages/Contact";
 import About from "./Pages/About";
+import Profile from "./Pages/Profile"; 
 
 const App = () => {
-  const [user, setUser] = useState(null); // Stores logged-in user info
+  const [user, setUser] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false); 
 
-  // 1. Check if user is logged in on page load
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/check-auth', {
-          credentials: 'include' // Important to send the session cookie
+          credentials: 'include'
         });
         const data = await response.json();
         if (data.authenticated) {
@@ -30,8 +31,11 @@ const App = () => {
 
   return (
     <div>
-      {/* Pass user state to Navbar to show/hide Login button */}
-      <Navbar user={user} setUser={setUser} />
+      <Navbar 
+        user={user} 
+        setUser={setUser} 
+        onOpenProfile={() => setIsProfileOpen(true)} 
+      />
       
       <Home />
       <Upload />
@@ -39,8 +43,34 @@ const App = () => {
       <About />
       <Contact />
       
-      {/* Pass setUser to Login so it can update state after successful login */}
       <Login setUser={setUser} />
+
+      <Profile 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)}
+        setUser={setUser}
+      />
+
+      {/* 🛠️ TEMPORARY DEBUG BUTTON 🛠️ */}
+      <button
+        onClick={() => setIsProfileOpen(true)}
+        style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 9999,
+            padding: '15px 25px',
+            background: 'red',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 15px rgba(255,0,0,0.4)',
+            cursor: 'pointer'
+        }}
+      >
+        🐞 Test Profile
+      </button>
     </div>
   );
 };
