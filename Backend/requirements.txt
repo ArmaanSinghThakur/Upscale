@@ -6,3 +6,6 @@ Flask-SQLAlchemy
 Pillow
 Flask-Login 
 Flask-Bcrypt
+torch
+torchvision
+numpy
